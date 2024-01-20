@@ -50,6 +50,9 @@ map <leader>s <Action>(SelectInProjectView)
 map <leader>z <Action>(ToggleDistractionFreeMode)
 map <leader>l <Action>(RecentLocations)
 map <leader>q <Action>(CloseContent)
+map <leader>w <Action>(SaveAll)
+map <leader>t <Action>(MoveTabRight)
+map <leader>v <Action>(MoveEditorToOppositeTabGroup)
 
 " Tab navigation
 nnoremap <A-n> :tabnext<CR>
@@ -68,4 +71,3 @@ nnoremap ]] <Action>(MethodDown)
 " Popup navigation
 inoremap <C-j> <Action>(PopupMenu-selectNext)
 inoremap <C-k> <Action>(PopupMenu-selectPrev)
-
