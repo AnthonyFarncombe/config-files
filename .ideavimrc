@@ -53,6 +53,7 @@ map <leader>q <Action>(CloseContent)
 map <leader>w <Action>(SaveAll)
 map <leader>t <Action>(MoveTabRight)
 map <leader>v <Action>(MoveEditorToOppositeTabGroup)
+map <leader>p <Action>(ManageRecentProjects)
 
 " Tab navigation
 nnoremap <A-n> :tabnext<CR>
