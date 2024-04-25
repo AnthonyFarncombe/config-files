@@ -128,3 +128,9 @@ pn() {
 pw() {
     /usr/local/bin/pin $1 | awk -v ORS="" '{print $2}' | xclip -selection clipboard
 }
+
+alias c="tr -d '\n' | xclip -selection clipboard"
+
+alias dw='dotnet watch --no-hot-reload'
+
+alias dwh='dotnet watch --no-hot-reload --project RedpackHmi/RedpackHmi.csproj'
