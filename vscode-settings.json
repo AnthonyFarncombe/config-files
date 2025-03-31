@@ -1,0 +1,82 @@
+{
+  "[python]": {
+    "editor.formatOnType": true
+  },
+  "remote.SSH.remotePlatform": {
+    "hmi": "linux",
+    "10.39.20.20": "linux"
+  },
+  "workbench.startupEditor": "none",
+  "git.autofetch": true,
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "vim.smartRelativeLine": true,
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[csharp]": {
+    "editor.defaultFormatter": "csharpier.csharpier-vscode"
+  },
+  "editor.lineNumbers": "relative",
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "vim.leader": "<space>",
+  "vim.normalModeKeyBindings": [
+    {
+      "before": ["leader", "f"],
+      "commands": ["workbench.action.quickOpen"]
+    },
+    {
+      "before": ["leader", "n"],
+      "comands": ["workbench.action.toggleSidebarVisibility"]
+    },
+    {
+      "before": ["leader", "w"],
+      "commands": ["workbench.action.files.saveAll"]
+    },
+    {
+      "before": ["leader", "q"],
+      "commands": ["workbench.action.closeActiveEditor"]
+    },
+    {
+      "before": ["leader", "t"],
+      "commands": ["workbench.action.moveEditorToNextGroup"]
+    },
+    {
+      "before": ["leader", "v"],
+      "commands": ["workbench.action.moveEditorToPreviousGroup"]
+    },
+    {
+      "before": ["alt", "n"],
+      "commands": ["workbench.action.nextEditor"]
+    },
+    {
+      "before": ["alt", "p"],
+      "commands": ["workbench.action.previousEditor"]
+    }
+  ],
+  "[vue]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "vim.ignorecase": false,
+  "[scss]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "makefile.configureOnOpen": true,
+  "cmake.pinnedCommands": [
+    "workbench.action.tasks.configureTaskRunner",
+    "workbench.action.tasks.runTask"
+  ],
+  "dart.flutterSdkPath": "C:\\flutter",
+  "vim.commandLineModeKeyBindings": [],
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "zig.zls.enabled": "on",
+  "github.copilot.selectedCompletionModel": "gpt-4o-copilot"
+}
