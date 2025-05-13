@@ -1,0 +1,19 @@
+// Place your key bindings in this file to override the defaults
+[
+    {
+        "key": "alt+p",
+        "command": "workbench.action.quickOpen"
+    },
+    {
+        "key": "shift+alt+p",
+        "command": "workbench.action.showCommands"
+    },
+    {
+        "key": "alt+escape",
+        "command": "editor.action.inlineSuggest.hide"
+    },
+    {
+        "key": "tab",
+        "command": "-extension.vim_tab"
+    }
+]
