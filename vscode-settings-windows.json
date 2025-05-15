@@ -1,33 +1,29 @@
 {
-  "[python]": {
-    "editor.formatOnType": true
-  },
-  "remote.SSH.remotePlatform": {
-    "hmi": "linux",
-    "10.39.20.20": "linux"
-  },
   "workbench.startupEditor": "none",
   "git.autofetch": true,
-  "[json]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "vim.smartRelativeLine": true,
-  "[typescriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.lineNumbers": "relative",
-  "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
+  "vim.smartRelativeLine": true,
   "vim.leader": "<space>",
+  "vim.handleKeys": {
+    "<C-p>": false
+  },
   "vim.normalModeKeyBindings": [
     {
       "before": ["leader", "f"],
       "commands": ["workbench.action.quickOpen"]
     },
     {
+      "before": ["leader", "s"],
+      "commands": ["workbench.files.action.showActiveFileInExplorer"]
+    },
+    {
+      "before": ["leader", "z"],
+      "commands": ["workbench.action.toggleZenMode"]
+    },
+    {
       "before": ["leader", "n"],
-      "comands": ["workbench.action.toggleSidebarVisibility"]
+      "commands": ["workbench.action.toggleSidebarVisibility"]
     },
     {
       "before": ["leader", "w"],
@@ -46,33 +42,10 @@
       "commands": ["workbench.action.moveEditorToPreviousGroup"]
     },
     {
-      "before": ["alt", "n"],
-      "commands": ["workbench.action.nextEditor"]
-    },
-    {
-      "before": ["alt", "p"],
-      "commands": ["workbench.action.previousEditor"]
+      "before": ["leader", "p"],
+      "commands": ["workbench.action.openRecent"]
     }
   ],
-  "[vue]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "vim.ignorecase": false,
-  "[scss]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "makefile.configureOnOpen": true,
-  "cmake.pinnedCommands": [
-    "workbench.action.tasks.configureTaskRunner",
-    "workbench.action.tasks.runTask"
-  ],
-  "vim.commandLineModeKeyBindings": [],
-  "[html]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
   "github.copilot.chat.agent.thinkingTool": true,
   "github.copilot.chat.languageContext.fix.typescript.enabled": true,
   "github.copilot.chat.languageContext.inline.typescript.enabled": true,
