@@ -1,5 +1,6 @@
 {
   "workbench.startupEditor": "none",
+  "files.eol": "\n",
   "git.autofetch": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.lineNumbers": "relative",
