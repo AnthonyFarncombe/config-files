@@ -6,9 +6,6 @@
   "editor.lineNumbers": "relative",
   "vim.smartRelativeLine": true,
   "vim.leader": "<space>",
-  "vim.handleKeys": {
-    "<C-p>": false
-  },
   "vim.normalModeKeyBindings": [
     {
       "before": ["leader", "f"],
