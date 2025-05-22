@@ -6,6 +6,9 @@
   "[go]": {
     "editor.defaultFormatter": "golang.go"
   },
+  "[powershell]": {
+    "editor.defaultFormatter": "ms-vscode.powershell"
+  },
   "editor.lineNumbers": "relative",
   "vim.smartRelativeLine": true,
   "vim.leader": "<space>",
