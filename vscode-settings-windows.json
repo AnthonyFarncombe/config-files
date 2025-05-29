@@ -9,6 +9,9 @@
   "[powershell]": {
     "editor.defaultFormatter": "ms-vscode.powershell"
   },
+  "[csharp]": {
+    "editor.defaultFormatter": "JetBrains.resharper-code"
+  },
   "editor.lineNumbers": "relative",
   "vim.smartRelativeLine": true,
   "vim.leader": "<space>",
