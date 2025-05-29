@@ -158,3 +158,51 @@ Clones the repository named "vancebuild/1234_TwinCAT".
 
     Write-Host "Repository '$repoName' cloned."
 }
+
+function Remove-SshKnownHostEntry {
+    [CmdletBinding(
+        SupportsShouldProcess = $true, # Allows -WhatIf and -Confirm
+        ConfirmImpact = 'Medium'
+    )]
+    param (
+        [Parameter(Mandatory = $true, Position = 0)]
+        [string]$IPAddress
+    )
+
+    Begin {
+        $knownHostsPath = Join-Path -Path $env:USERPROFILE -ChildPath ".ssh\known_hosts"
+        if (-not (Test-Path -Path $knownHostsPath)) {
+            Write-Warning "known_hosts file not found at '$knownHostsPath'. No action taken."
+            return
+        }
+    }
+
+    Process {
+        # Read the current content
+        $originalContent = Get-Content -Path $knownHostsPath
+
+        # Filter out lines matching the IP address
+        $newContent = $originalContent | Where-Object { $_ -notmatch [regex]::Escape($IPAddress) }
+
+        # Check if any changes were made
+        if ($originalContent.Count -eq $newContent.Count) {
+            Write-Host "No entries found for IP address '$IPAddress' in '$knownHostsPath'."
+            return
+        }
+
+        # Perform the write operation with ShouldProcess for safety
+        if ($PSCmdlet.ShouldProcess("Remove entries for '$IPAddress' from '$knownHostsPath'", "Remove Known Host Entry")) {
+            try {
+                Set-Content -Path $knownHostsPath -Value $newContent -Force
+                Write-Host "Successfully removed entries for '$IPAddress' from '$knownHostsPath'."
+            }
+            catch {
+                Write-Error "Failed to update known_hosts file: $($_.Exception.Message)"
+            }
+        }
+    }
+
+    End {
+        # Clean up if necessary (not much needed here)
+    }
+}
