@@ -20,6 +20,7 @@ RUN apt-get update \
       ca-certificates \
       gnupg \
       lsb-release \
+      lintian \
       software-properties-common \
       unzip \
  && rm -rf /var/lib/apt/lists/*
