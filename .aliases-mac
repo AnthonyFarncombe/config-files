@@ -1,6 +1,8 @@
 # IP alias and functions
 alias ip="ifconfig -a | egrep -A 7 '^en0' | grep inet | grep -oE '((1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\.){3}(1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])' | head -n 1"
-alias myip="curl -s http://checkip.dyndns.org/ | sed 's/[a-zA-Z<>/ :]//g'"
+alias pubip="curl -s http://checkip.dyndns.org/ | sed 's/[a-zA-Z<>/ :]//g'"
+
+alias copy='tr -d "\n" | pbcopy'
 
 alias dw='dotnet watch --no-hot-reload'
 alias dws='dotnet watch --no-hot-reload --launch-profile https'
@@ -15,21 +17,27 @@ pw() {
 
 nmr() {
   if [[ $# -eq 0 ]]; then
-    echo "Error: Machine number is required"
-    echo "Usage: new-machine-repo <machine_number>"
+    echo "Error: At least one machine number is required"
+    echo "Usage: nmr <machine_number> [machine_number ...]"
     return 1
   fi
-
-  local machine_number="$1"
-  local repo_name="vancebuild/${machine_number}_TwinCAT"
-  local repo_url="https://github.com/${repo_name}"
-
-  echo "Creating private repository: $repo_name"
-  gh repo create "$repo_name" --private
-
-  echo "Granting 'push' permission to the 'machines' team for repository: $repo_name"
-  gh api --method PUT "/orgs/vancebuild/teams/machines/repos/$repo_name" -f permission=push
-
-  echo "Repository '$repo_name' created and permissions set."
-  echo "Click here to open the repository on GitHub: $repo_url"
+  
+  for machine_number in "$@"; do
+    local repo_name="vancebuild/${machine_number}_TwinCAT"
+    local repo_url="https://github.com/${repo_name}"
+    
+    echo "Creating private repository: $repo_name"
+    gh repo create "$repo_name" --private
+    
+    echo "Granting 'push' permission to the 'machines' team for repository: $repo_name"
+    gh api --method PUT "/orgs/vancebuild/teams/machines/repos/$repo_name" -f permission=push
+    
+    echo "Repository '$repo_name' created and permissions set."
+    echo "Click here to open the repository on GitHub: $repo_url"
+    echo "---"  # Separator between repos for clarity
+  done
 }
+
+# Docker dev environment aliases
+alias devenv='docker run -it --rm -v $(pwd):/workspace dev-env'
+alias devenvp='docker run -it --rm -p 3000:3000 -v $(pwd):/workspace dev-env'
