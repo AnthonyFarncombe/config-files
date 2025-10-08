@@ -16,6 +16,7 @@ RUN apt-get update \
       pkg-config \
       libusb-1.0-0-dev \
       curl \
+      git \
       wget \
       ca-certificates \
       gnupg \
