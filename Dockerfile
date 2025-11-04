@@ -17,6 +17,7 @@ RUN apt-get update \
       libusb-1.0-0-dev \
       curl \
       git \
+      openssh-client \
       wget \
       ca-certificates \
       gnupg \
