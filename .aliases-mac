@@ -5,6 +5,8 @@ alias pubip="curl -s http://checkip.amazonaws.com"
 alias copy='tr -d "\n" | pbcopy'
 alias pwdc='pwd | tr -d "\n" | pbcopy'
 
+alias tree='tree --gitignore'
+
 alias dw='dotnet watch --no-hot-reload'
 alias dws='dotnet watch --no-hot-reload --launch-profile https'
 
