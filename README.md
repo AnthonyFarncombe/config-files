@@ -5,11 +5,12 @@ This repository contains personal configuration files for various development to
 ## Repository Overview
 
 Configuration files for:
+
 - **Shell Environments**: Bash/Zsh configurations for WSL, macOS, and PopOS
 - **Neovim**: Complete Neovim setup with Lazy.nvim package manager
 - **VSCode**: Settings and keybindings for Mac and Windows
 - **PowerShell**: Custom profile with utility functions
-- **Docker**: Ubuntu-based development container with modern development tools
+- **Docker**: Debian-based development container with modern development tools
 - **IntelliJ IDEA**: IDE configuration files
 
 ## Key Files Structure
@@ -30,19 +31,19 @@ Configuration files for:
 
 ## Docker Development Environment
 
-The included Dockerfile provides a comprehensive Ubuntu 24.04 based development environment with modern tooling for C++, .NET, and JavaScript/TypeScript development.
+The included Dockerfile provides a comprehensive Debian Trixie based development environment with modern tooling for C++, .NET, and JavaScript/TypeScript development.
 
 ### Included Development Stack
 
-- **Base OS**: Ubuntu 24.04
+- **Base OS**: Debian Trixie
 - **C++ Development**: 
   - CMake build system
   - GDB debugger
   - GCC/G++ compilers (build-essential)
-  - Libraries: OpenCV, ZeroMQ, Poco, fmt, libusb
-- **.NET Development**: .NET 9 SDK
+  - Libraries: OpenCV, ZeroMQ, Poco, fmt, libusb, sdbus-c++ 2.x
+- **.NET Development**: .NET 10 SDK
 - **JavaScript/TypeScript**: 
-  - Node.js 22
+  - Node.js 24
   - Bun runtime
 - **Package Management**: apt, npm, dotnet CLI
 
@@ -72,12 +73,14 @@ docker run -it --rm -v $(pwd):/workspace -w /workspace dev-env bun init
 ### IDE Integration
 
 #### Visual Studio Code
+
 1. Install the "Dev Containers" extension
 2. Open your project folder
 3. Run "Dev Containers: Reopen in Container" from command palette
 4. VSCode will use the Dockerfile to create a development environment
 
 #### JetBrains IDEs (CLion/Rider)
+
 1. Go to Settings → Build, Execution, Deployment → Docker
 2. Configure Docker connection
 3. For toolchains, add a new Docker toolchain pointing to `dev-env` image
@@ -100,6 +103,7 @@ Then rebuild the image with your changes.
 ## Platform-Specific Configurations
 
 ### macOS Setup
+
 ```bash
 # Link aliases
 ln -sf $(pwd)/.aliases-mac ~/.aliases-mac
@@ -111,6 +115,7 @@ cp vscode-keybindings-mac.json ~/Library/Application\ Support/Code/User/keybindi
 ```
 
 ### Windows Setup
+
 ```powershell
 # PowerShell profile
 Copy-Item Microsoft.PowerShell_profile.ps1 $PROFILE
@@ -121,6 +126,7 @@ Copy-Item vscode-keybindings-windows.json "$env:APPDATA\Code\User\keybindings.js
 ```
 
 ### Linux/WSL Setup
+
 ```bash
 # WSL bashrc
 ln -sf $(pwd)/.bashrc-wsl ~/.bashrc
@@ -130,6 +136,7 @@ ln -sf $(pwd)/.bashrc-pop ~/.bashrc
 ```
 
 ### Neovim Setup
+
 ```bash
 # Link Neovim configuration
 ln -sf $(pwd)/nvim ~/.config/nvim
@@ -141,12 +148,14 @@ nvim
 ## Custom Functions and Aliases
 
 ### PowerShell Functions
+
 - `New-MachineRepo` - Creates private GitHub repositories for TwinCAT projects
 - `Get-MachineRepo` - Clones TwinCAT machine repositories with proper structure
 - `Remove-SshKnownHostEntry` - Removes SSH known host entries by IP address
 - `Repair-Cursor` - Fixes Cursor editor conflicts with VSCode
 
 ### Shell Aliases (macOS)
+
 - `nmr` - Creates private GitHub repos (bash equivalent of New-MachineRepo)
 - `pn`/`pw` - Pin command output to clipboard
 - `dw`/`dws` - Dotnet watch shortcuts for development
@@ -171,17 +180,20 @@ nvim
 ## Troubleshooting
 
 ### Docker Container Issues
+
 ```bash
 # Verify installations in container
 docker run --rm dev-env dotnet --version
 docker run --rm dev-env node --version
 docker run --rm dev-env bun --version
+docker run --rm dev-env pkg-config --modversion sdbus-c++
 
 # Check available tools
 docker run --rm dev-env which cmake gdb gcc g++
 ```
 
 ### Configuration File Issues
+
 - Ensure proper line endings (LF for Unix, CRLF for Windows)
 - Check file permissions for shell scripts
 - Verify paths in configuration files match your system

@@ -1,4 +1,4 @@
-FROM ubuntu:24.04
+FROM debian:trixie
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -10,9 +10,10 @@ RUN apt-get update \
       build-essential \
       libopencv-dev \
       libzmq3-dev \
-      libpocojson80 \
       libpoco-dev \
       libfmt-dev \
+      libsdbus-c++2 \
+      libsdbus-c++-dev \
       pkg-config \
       libusb-1.0-0-dev \
       curl \
@@ -23,19 +24,18 @@ RUN apt-get update \
       gnupg \
       lsb-release \
       lintian \
-      software-properties-common \
       unzip \
  && rm -rf /var/lib/apt/lists/*
 
-# Install .NET 9 SDK
+# Install .NET 10 SDK
 RUN wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh \
  && chmod +x dotnet-install.sh \
- && ./dotnet-install.sh --channel 9.0 --install-dir /usr/share/dotnet \
+ && ./dotnet-install.sh --channel 10.0 --install-dir /usr/share/dotnet \
  && ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet \
  && rm dotnet-install.sh
 
-# Install Node.js 22
-RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+# Install Node.js 24
+RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash - \
  && apt-get install -y nodejs \
  && rm -rf /var/lib/apt/lists/*
 
@@ -54,7 +54,10 @@ ENV PATH="${PATH}:/usr/share/dotnet"
 ENV DOTNET_ROOT="/usr/share/dotnet"
 
 # Verify installations
-RUN dotnet --version && node --version && bun --version
+RUN dotnet --version \
+ && node --version \
+ && bun --version \
+ && pkg-config --modversion sdbus-c++
 
 WORKDIR /workspace
 
