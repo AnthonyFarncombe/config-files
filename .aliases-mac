@@ -10,6 +10,7 @@ alias unlock-keychain='security unlock-keychain ~/Library/Keychains/login.keycha
 
 alias dw='dotnet watch --no-hot-reload'
 alias dws='dotnet watch --no-hot-reload --launch-profile https'
+alias ssm-vpn='aws ssm start-session --target i-0a73cdc148fbc9b17'
 
 pn() {
   pin $1 | awk -v ORS="" '{print $1}' | pbcopy
