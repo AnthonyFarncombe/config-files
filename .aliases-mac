@@ -42,6 +42,56 @@ nmr() {
   done
 }
 
+msdb() {
+  if [ -z "$1" ]; then
+    echo "Usage: msdb <ConnectionName> [query]"
+    return 1
+  fi
+
+  local SECRETS_ID
+  SECRETS_ID=$(grep -o '<UserSecretsId>[^<]*' *.csproj 2>/dev/null | head -1 | sed 's/<UserSecretsId>//')
+
+  if [ -z "$SECRETS_ID" ]; then
+    echo "Error: No UserSecretsId found in any .csproj file in the current directory."
+    return 1
+  fi
+
+  local SECRETS_FILE="$HOME/.microsoft/usersecrets/$SECRETS_ID/secrets.json"
+
+  if [ ! -f "$SECRETS_FILE" ]; then
+    echo "Error: Secrets file not found at $SECRETS_FILE"
+    return 1
+  fi
+
+  local CONN
+  CONN=$(jq -r ".ConnectionStrings[\"$1\"]" "$SECRETS_FILE")
+
+  if [ -z "$CONN" ] || [ "$CONN" = "null" ]; then
+    echo "Error: Connection string 'ConnectionStrings:$1' not found in secrets."
+    return 1
+  fi
+
+  local SERVER DATABASE USER PASS
+
+  SERVER=$(echo "$CONN" | sed -n 's/.*[Ss]erver=\([^;]*\).*/\1/p;s/.*[Dd]ata [Ss]ource=\([^;]*\).*/\1/p' | head -1)
+  DATABASE=$(echo "$CONN" | sed -n 's/.*[Dd]atabase=\([^;]*\).*/\1/p;s/.*[Ii]nitial [Cc]atalog=\([^;]*\).*/\1/p' | head -1)
+  USER=$(echo "$CONN" | sed -n 's/.*[Uu]ser [Ii]d=\([^;]*\).*/\1/p' | head -1)
+  PASS=$(echo "$CONN" | sed -n 's/.*[Pp]assword=\([^;]*\).*/\1/p' | head -1)
+
+  if [ -z "$SERVER" ] || [ -z "$DATABASE" ] || [ -z "$USER" ] || [ -z "$PASS" ]; then
+    echo "Error: Could not parse all fields from connection string."
+    echo "Connection string: $CONN"
+    return 1
+  fi
+
+  if [ -n "$2" ]; then
+    sqlcmd -S "$SERVER" -U "$USER" -P "$PASS" -d "$DATABASE" -Q "$2"
+  else
+    echo "Connecting to $DATABASE on $SERVER as $USER..."
+    sqlcmd -S "$SERVER" -U "$USER" -P "$PASS" -d "$DATABASE"
+  fi
+}
+
 # Docker dev environment aliases
 alias devenv='docker run -it --rm -v $(pwd):/workspace dev-env'
 alias devenvp='docker run -it --rm -p 3000:3000 -v $(pwd):/workspace dev-env'
