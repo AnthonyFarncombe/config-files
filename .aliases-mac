@@ -12,12 +12,31 @@ alias dw='dotnet watch --no-hot-reload'
 alias dws='dotnet watch --no-hot-reload --launch-profile https'
 alias ssm-vpn='aws ssm start-session --target i-0a73cdc148fbc9b17'
 
+_machine_number() {
+  if [[ -n "$1" ]]; then
+    echo "$1"
+    return 0
+  fi
+
+  local machine_number
+  machine_number=$(curl -s --connect-timeout 2 http://192.168.25.13:4001/info | jq -r '.machineNumber // empty')
+  if [[ -z "$machine_number" || "$machine_number" == "null" ]]; then
+    echo "Error: No machine number provided and could not fetch from http://192.168.25.13:4001/info" >&2
+    return 1
+  fi
+  echo "$machine_number"
+}
+
 pn() {
-  pin $1 | awk -v ORS="" '{print $1}' | pbcopy
+  local machine_number
+  machine_number=$(_machine_number "$1") || return 1
+  pin "$machine_number" | awk -v ORS="" '{print $1}' | pbcopy
 }
 
 pw() {
-  pin $1 | awk -v ORS="" '{print $2}' | pbcopy
+  local machine_number
+  machine_number=$(_machine_number "$1") || return 1
+  pin "$machine_number" | awk -v ORS="" '{print $2}' | pbcopy
 }
 
 nmr() {
