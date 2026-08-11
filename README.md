@@ -109,6 +109,9 @@ Then rebuild the image with your changes.
 ln -sf $(pwd)/.aliases-mac ~/.aliases-mac
 echo "source ~/.aliases-mac" >> ~/.zshrc
 
+# Link tmux configuration
+ln -sf $(pwd)/.tmux.conf ~/.tmux.conf
+
 # VSCode settings
 cp vscode-settings-mac.json ~/Library/Application\ Support/Code/User/settings.json
 cp vscode-keybindings-mac.json ~/Library/Application\ Support/Code/User/keybindings.json
@@ -133,7 +136,17 @@ ln -sf $(pwd)/.bashrc-wsl ~/.bashrc
 
 # PopOS bashrc
 ln -sf $(pwd)/.bashrc-pop ~/.bashrc
+
+# tmux configuration
+ln -sf $(pwd)/.tmux.conf ~/.tmux.conf
 ```
+
+### iTerm2 tmux Integration
+
+On macOS, source `.aliases-mac` and run `tmuxcc` to start tmux using iTerm2's
+native control mode. Arguments are forwarded to tmux, so `tmuxcc attach` can
+attach to an existing session. The normal `tmux` command continues to use the
+portable terminal interface used on Linux and WSL.
 
 ### Neovim Setup
 

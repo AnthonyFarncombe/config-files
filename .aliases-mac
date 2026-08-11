@@ -8,6 +8,21 @@ alias pwdc='pwd | tr -d "\n" | pbcopy'
 alias tree='tree --gitignore'
 alias unlock-keychain='security unlock-keychain ~/Library/Keychains/login.keychain-db'
 
+# Start tmux using iTerm2's native control-mode integration.
+tmuxcc() {
+  if [[ "$TERM_PROGRAM" != "iTerm.app" ]]; then
+    echo "tmuxcc requires iTerm2." >&2
+    return 1
+  fi
+
+  if [[ -n "$TMUX" ]]; then
+    echo "tmuxcc cannot be started from inside another tmux client." >&2
+    return 1
+  fi
+
+  command tmux -CC "$@"
+}
+
 alias dw='dotnet watch --no-hot-reload'
 alias dws='dotnet watch --no-hot-reload --launch-profile https'
 alias ssm-vpn='aws ssm start-session --target i-0a73cdc148fbc9b17'
