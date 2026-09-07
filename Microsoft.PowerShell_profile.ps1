@@ -206,3 +206,226 @@ function Remove-SshKnownHostEntry {
         # Clean up if necessary (not much needed here)
     }
 }
+
+function Switch-EthernetIp {
+    <#
+.SYNOPSIS
+Toggles the Ethernet adapter between a machine-network static IP and DHCP.
+
+.DESCRIPTION
+Switches the Ethernet interface between 192.168.25.213/24 and DHCP.
+No default gateway is set on the static address so Wi-Fi keeps the default route.
+Changing IP configuration requires administrator privileges; if this session is
+not elevated, a UAC prompt is shown and the change runs as administrator.
+
+.PARAMETER Static
+Force the machine-network static address instead of toggling.
+
+.PARAMETER Dhcp
+Force DHCP instead of toggling.
+
+.PARAMETER InterfaceAlias
+Name of the adapter to configure. Defaults to Ethernet.
+
+.PARAMETER IPAddress
+Static IPv4 address to apply. Defaults to 192.168.25.213.
+
+.PARAMETER PrefixLength
+Subnet prefix length. Defaults to 24.
+
+.EXAMPLE
+Switch-EthernetIp
+Toggles Ethernet between static 192.168.25.213/24 and DHCP.
+
+.EXAMPLE
+Switch-EthernetIp -Static
+Sets Ethernet to 192.168.25.213/24.
+
+.EXAMPLE
+Switch-EthernetIp -Dhcp
+Restores DHCP on Ethernet.
+#>
+    [CmdletBinding(DefaultParameterSetName = 'Toggle', SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    param(
+        [Parameter(ParameterSetName = 'Static')]
+        [switch]$Static,
+
+        [Parameter(ParameterSetName = 'Dhcp')]
+        [switch]$Dhcp,
+
+        [Parameter()]
+        [string]$InterfaceAlias = 'Ethernet',
+
+        [Parameter()]
+        [ipaddress]$IPAddress = '192.168.25.213',
+
+        [Parameter()]
+        [ValidateRange(1, 32)]
+        [int]$PrefixLength = 24
+    )
+
+    $adapter = Get-NetAdapter -Name $InterfaceAlias -ErrorAction SilentlyContinue
+    if (-not $adapter) {
+        $available = (Get-NetAdapter | Select-Object -ExpandProperty Name) -join ', '
+        Write-Error "Adapter '$InterfaceAlias' was not found. Available adapters: $available"
+        return
+    }
+
+    if ($adapter.Status -ne 'Up') {
+        Write-Warning "Adapter '$InterfaceAlias' is $($adapter.Status). The address will still be saved."
+    }
+
+    $ipInterface = Get-NetIPInterface -InterfaceAlias $InterfaceAlias -AddressFamily IPv4
+    $staticIpText = $IPAddress.IPAddressToString
+    $currentAddresses = @(
+        Get-NetIPAddress -InterfaceAlias $InterfaceAlias -AddressFamily IPv4 -ErrorAction SilentlyContinue |
+            Where-Object { $_.IPAddress -notlike '169.254.*' }
+    )
+
+    if ($Static) {
+        $useStatic = $true
+    }
+    elseif ($Dhcp) {
+        $useStatic = $false
+    }
+    else {
+        $useStatic = $ipInterface.Dhcp -ne 'Disabled'
+    }
+
+    if ($useStatic) {
+        $alreadyStatic = $currentAddresses |
+            Where-Object { $_.IPAddress -eq $staticIpText -and $_.PrefixLength -eq $PrefixLength }
+        if (($ipInterface.Dhcp -eq 'Disabled') -and $alreadyStatic) {
+            Write-Host "$InterfaceAlias is already static ($staticIpText/$PrefixLength)."
+            return
+        }
+    }
+    elseif ($ipInterface.Dhcp -eq 'Enabled') {
+        Write-Host "$InterfaceAlias is already using DHCP."
+        return
+    }
+
+    $targetDescription = if ($useStatic) {
+        "static $staticIpText/$PrefixLength"
+    }
+    else {
+        'DHCP'
+    }
+
+    if (-not $PSCmdlet.ShouldProcess($InterfaceAlias, "Set $targetDescription")) {
+        return
+    }
+
+    $applyScript = @'
+param(
+    [string]$InterfaceAlias,
+    [string]$StaticIp,
+    [int]$PrefixLength,
+    [ValidateSet('Static', 'Dhcp')]
+    [string]$Mode,
+    [string]$LogFile
+)
+
+$ErrorActionPreference = 'Stop'
+
+try {
+    Get-NetIPAddress -InterfaceAlias $InterfaceAlias -AddressFamily IPv4 -ErrorAction SilentlyContinue |
+        Remove-NetIPAddress -Confirm:$false -ErrorAction SilentlyContinue
+
+    Get-NetRoute -InterfaceAlias $InterfaceAlias -AddressFamily IPv4 -ErrorAction SilentlyContinue |
+        Where-Object { $_.DestinationPrefix -eq '0.0.0.0/0' } |
+        Remove-NetRoute -Confirm:$false -ErrorAction SilentlyContinue
+
+    if ($Mode -eq 'Static') {
+        Set-NetIPInterface -InterfaceAlias $InterfaceAlias -AddressFamily IPv4 -Dhcp Disabled
+        New-NetIPAddress -InterfaceAlias $InterfaceAlias -IPAddress $StaticIp -PrefixLength $PrefixLength -AddressFamily IPv4 |
+            Out-Null
+        Set-DnsClientServerAddress -InterfaceAlias $InterfaceAlias -ResetServerAddresses
+    }
+    else {
+        Set-NetIPInterface -InterfaceAlias $InterfaceAlias -AddressFamily IPv4 -Dhcp Enabled
+        Set-DnsClientServerAddress -InterfaceAlias $InterfaceAlias -ResetServerAddresses
+    }
+
+    if ($LogFile) {
+        'SUCCESS' | Set-Content -Path $LogFile
+    }
+}
+catch {
+    if ($LogFile) {
+        "ERROR: $($_.Exception.Message)" | Set-Content -Path $LogFile
+    }
+    throw
+}
+'@
+
+    $logFile = Join-Path $env:TEMP 'Switch-EthernetIp.log'
+    $scriptFile = Join-Path $env:TEMP 'Switch-EthernetIp.ps1'
+    $applyScript | Set-Content -Path $scriptFile -Encoding UTF8
+    if (Test-Path $logFile) {
+        Remove-Item -Path $logFile -Force
+    }
+
+    $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(
+        [Security.Principal.WindowsBuiltInRole]::Administrator
+    )
+
+    $applyParams = @{
+        InterfaceAlias = $InterfaceAlias
+        StaticIp       = $staticIpText
+        PrefixLength   = $PrefixLength
+        Mode           = $(if ($useStatic) { 'Static' } else { 'Dhcp' })
+        LogFile        = $logFile
+    }
+
+    if ($isAdmin) {
+        try {
+            & $scriptFile @applyParams
+        }
+        catch {
+            Write-Error "Failed to set $InterfaceAlias to $targetDescription`: $($_.Exception.Message)"
+            return
+        }
+    }
+    else {
+        $exe = (Get-Process -Id $PID).Path
+        $arguments = @(
+            '-NoProfile'
+            '-ExecutionPolicy', 'Bypass'
+            '-File', $scriptFile
+            '-InterfaceAlias', $InterfaceAlias
+            '-StaticIp', $staticIpText
+            '-PrefixLength', "$PrefixLength"
+            '-Mode', $(if ($useStatic) { 'Static' } else { 'Dhcp' })
+            '-LogFile', $logFile
+        )
+
+        try {
+            $proc = Start-Process -FilePath $exe -Verb RunAs -Wait -PassThru -ArgumentList $arguments
+        }
+        catch {
+            Write-Error "Elevation was cancelled or failed: $($_.Exception.Message)"
+            return
+        }
+
+        $logText = if (Test-Path $logFile) { (Get-Content -Path $logFile -Raw).Trim() } else { '' }
+        if ($logText -like 'ERROR:*') {
+            Write-Error "Failed to set $InterfaceAlias to $targetDescription`: $($logText.Substring(6).Trim())"
+            return
+        }
+        if ($proc.ExitCode -ne 0 -and $logText -ne 'SUCCESS') {
+            Write-Error "Failed to set $InterfaceAlias to $targetDescription (exit code $($proc.ExitCode))."
+            return
+        }
+    }
+
+    $resultInterface = Get-NetIPInterface -InterfaceAlias $InterfaceAlias -AddressFamily IPv4
+    $resultAddresses = @(
+        Get-NetIPAddress -InterfaceAlias $InterfaceAlias -AddressFamily IPv4 -ErrorAction SilentlyContinue |
+            Where-Object { $_.IPAddress -notlike '169.254.*' } |
+            Select-Object -ExpandProperty IPAddress
+    )
+    $mode = if ($resultInterface.Dhcp -eq 'Enabled') { 'DHCP' } else { 'Static' }
+    $addressText = if ($resultAddresses.Count -gt 0) { $resultAddresses -join ', ' } else { 'no IPv4 address yet' }
+    Write-Host "$InterfaceAlias is now $mode ($addressText)."
+}

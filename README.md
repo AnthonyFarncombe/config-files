@@ -120,8 +120,8 @@ cp vscode-keybindings-mac.json ~/Library/Application\ Support/Code/User/keybindi
 ### Windows Setup
 
 ```powershell
-# PowerShell profile
-Copy-Item Microsoft.PowerShell_profile.ps1 $PROFILE
+# PowerShell profile: source the repo file so updates apply without copying
+Set-Content -LiteralPath $PROFILE -Value ". '$((Resolve-Path .\Microsoft.PowerShell_profile.ps1).Path)'"
 
 # VSCode settings
 Copy-Item vscode-settings-windows.json "$env:APPDATA\Code\User\settings.json"
